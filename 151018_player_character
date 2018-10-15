@@ -1,0 +1,15 @@
+class Player_Character:
+    
+    def __init__(self):
+        
+        self.name = ''
+        self.type = ''
+        self.hitpoints = 100
+        self.helm = []
+        self.armour = []
+        self.shield = []
+        self.weapon = []
+        self.atk = 5
+        self.dfc = 5
+        self.matk = 5
+        self.mdfc = 5
