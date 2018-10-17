@@ -1,1 +1,17 @@
-
+class Equipment:
+    
+    def __init__(self, title, slot, type, atk, dfc, matk, mdef):
+        self.title = title
+        self.type = type
+        self.atk = atk
+        self.dfc = dfc
+        self.matk = matk
+        self.mdef = mdef
+    
+    def __str___(self):
+        print(f'{self.title} is a {self.type} to be equipped as a {self.slot}')
+        print(f'{self.title} has the following attributes: ')
+        print(f'attack: {self.atk}')
+        print(f'defense: {self.dfc}')
+        print(f'magic attack: {self.matk}')
+        print(f'magic defense: {self.mdfc}')
