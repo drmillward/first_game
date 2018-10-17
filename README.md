@@ -1,2 +1,2 @@
 # first_game
-a basic randomly genrated dungeon crawler
+a basic, randomly genrated, dungeon crawler-type game.
