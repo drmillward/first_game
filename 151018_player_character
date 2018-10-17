@@ -74,6 +74,3 @@ class Player_Character:
             else:
                 print('this is an invalid selection. please check your spelling and try again')
                 continue
-        
-        
-        self.__str__()
