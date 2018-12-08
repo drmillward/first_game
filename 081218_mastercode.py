@@ -2,8 +2,10 @@
 """
 Created on Mon Dec  3 10:03:44 2018
 
-@author: danie
+@author: daniel
 """
+
+import random
 
 #%%
 
@@ -95,7 +97,72 @@ class Chest:
             
             print(f'the chest is open. it contains {self.item.title}')        
         
-#%%   
+#%%
+        
+loweq1 = Equipment('loweq1', 'helm', 'helmet', 0, 2, 0, 0)       
+loweq2 = Equipment('loweq2', 'armour', 'light armour', 0, 4, 0, 0)
+loweq3 = Equipment('loweq3', 'shield', 'round shield', 0, 2, 0, 0)
+loweq4 = Equipment('loweq4', 'weapon', 'axe', 5, 0, 0, 0)
+
+mideq1 = Equipment('mideq1', 'shield', 'magic orb', 0, 1, 0, 5)
+mideq2 = Equipment('mideq2', 'weapon', 'magic staff', 0, 0, 5, 0)
+mideq3 = Equipment('mideq3', 'helm', 'hat', 0, 0, 0, 2)
+mideq4 = Equipment('mideq4', 'armour', 'robe', 0, 1, 0, 4)
+
+hieq1 = Equipment('hieq1', 'helm', 'helmet', 0, 3, 0, 1)
+hieq2 = Equipment('hieq2', 'armour', 'heavy armour', 0, 5, 0, 2)
+hieq3 = Equipment('hieq3', 'shield', 'kite shield', 0, 3, 0, 0)
+hieq4 = Equipment('hieq4', 'weapon', 'sword', 3, 0, 0, 0)
+
+#%%
+
+lowpot1 = Potion('lowpot1', 'attack', 2)
+lowpot2 = Potion('lowpot2', 'attack', 2)
+lowpot3 = Potion('lowpot3', 'attack', 2)
+
+midpot1 = Potion('midpot1', 'defence', 1)
+midpot2 = Potion('midpot2', 'defence', 1)
+midpot3 = Potion('midpot3', 'defence', 1)
+
+hipot1 = Potion('hipot1', 'magic attack', 3)
+hipot2 = Potion('hipot2', 'magic attack', 3)
+hipot3 = Potion('hipot3', 'magic attack', 3)
+
+#%%
+
+lowitem = {loweq1 : range(0, 1500), loweq2 : range(1500, 3000), loweq3 : range(3000, 4500), loweq4 : range(4500, 6000), lowpot1 : range(6000, 7000), lowpot2 : range(7000, 7500), lowpot3 : range(7500, 8001)}
+miditem = {mideq1 : range(0, 2000), mideq2 : range(2000, 4000), mideq3 : range(4000, 5000), mideq4 : range(5000, 5500), midpot1 : range(5500, 7000), midpot2 : range(7000, 7200), midpot3 : range(7200, 8001)}
+hiitem = {hieq1 : range(0, 1000), hieq2 : range(1000, 2000), hieq3 : range(2000, 3000), hieq4 : range(3000, 4000), hipot1 : range(4000, 6000), hipot2 : range(6000, 7000), hipot3 : range(7000, 8001)}
+
+#%%
+
+def item_generator(level, seed):
+    
+    global lowitem
+    global miditem
+    global hiitem
+    
+    if 0 < level < 20:
+        for i in lowitem:
+            if seed in lowitem[i]:
+                item = i
+    
+    elif 20 <= level < 40:
+        for i in miditem:
+            if seed in miditem[i]:
+                item = i
+    
+    elif 40 <= level < 60:
+        for i in hiitem:
+            if seed in hiitem[i]:
+                item = i
+                
+    
+    #print(seed)            
+    #print(item.title)
+    return item
+
+#%% 
             
 class Door:
     
@@ -114,8 +181,8 @@ class Door:
 class Player_Character:
     
     ### a player character is defined with a set of slots to equip Equipment objects, and a set of stats
-    def __init__(self, name = 'hero'):
-        self.name = name
+    def __init__(self, title = 'hero'):
+        self.title = title
         self.type = ''
         self.dam_type = ''
         self.hitpoints = 100
@@ -131,13 +198,13 @@ class Player_Character:
     
     ### describe the player characters stats and equipment
     def __str__(self):
-        print(f'\n{self.name} is a {self.type} with the following attributes: \n')
+        print(f'\n{self.title} is a {self.type} with the following attributes: \n')
         print(f'attack: {self.atk}')
         print(f'defense: {self.dfc}')
         print(f'magic attack: {self.matk}')
         print(f'magic defense: {self.mdfc}')
         print(f'total hitpoints: {self.hitpoints}\n')
-        print(f'{self.name} is wearing the following equipment:')
+        print(f'{self.title} is wearing the following equipment:')
         print(f'helm: {self.helm.title}')
         print(f'attack - {self.helm.atk} defence - {self.helm.dfc} magic attack - {self.helm.matk} magic defence - {self.helm.mdfc}\n')
         print(f'armour: {self.armour.title}')
@@ -162,7 +229,7 @@ class Player_Character:
                     query = 0
                 elif confirm.lower() == 'y':
                     ### if yes, set the characters name
-                    self.name = name
+                    self.title = name
                     ### break both confirm and naming loops
                     naming = 0
                     query = 0
@@ -245,10 +312,10 @@ class Player_Character:
         ### allows the player to choose their starting class
         ### available classes are defined as dictionaries for easy reference and include a general description as well as general stats to be added to the base stats
         char_types = {
-        'warrior' : {'desc' : 'warriors are trained from a young age in the art of close-quarters combat. \nas such, these warriors have a high physical attack, but are vulnerable to magic. \nThey enter the dungeon with a sword of high quality and basic defensive armour', 'hitpoints' : 20, 'atk' : 7, 'dfc' : 0, 'matk' : -4, 'mdfc' : 0},
-        'knight' : {'desc' : 'the knights day (and night) job is as  part of the royal guard. \nnot just for show, knights are equiped with a quality set of armour, and are highly resistant to physical attacks, as well as being able to shrug off their fair share of magical ones', 'hitpoints' : 50, 'atk' : 0, 'dfc' : 5, 'matk' : -4, 'mdfc' : 2},
-        'mage' : {'desc' : 'starts with high magic attack, but not much in the way of defence', 'hitpoints' : 0, 'atk' : -2, 'dfc' : -3, 'matk' : 8, 'mdfc' : 2},
-        'paladin' : {'desc' : 'begins with high magic defence and deals both magic and physical damage', 'hitpoints' : 50, 'atk' : -2, 'dfc' : 2, 'matk' : 2, 'mdfc' : 5}
+        'warrior' : {'desc' : 'warriors are trained from a young age in the art of close-quarters combat. \nas such, these warriors have a high physical attack, but are vulnerable to magic. \nThey enter the dungeon with a sword of high quality and basic defensive armour', 'dam_type' : 'physical', 'hitpoints' : 20, 'atk' : 7, 'dfc' : 0, 'matk' : -4, 'mdfc' : 0},
+        'knight' : {'desc' : 'the knights day (and night) job is as  part of the royal guard. \nnot just for show, knights are equiped with a quality set of armour, and are highly resistant to physical attacks, as well as being able to shrug off their fair share of magical ones', 'dam_type' : 'physical', 'hitpoints' : 50, 'atk' : 0, 'dfc' : 5, 'matk' : -4, 'mdfc' : 2},
+        'mage' : {'desc' : 'starts with high magic attack, but not much in the way of defence', 'dam_type' : 'magic', 'hitpoints' : 0, 'atk' : -2, 'dfc' : -3, 'matk' : 8, 'mdfc' : 2},
+        'paladin' : {'desc' : 'begins with high magic defence and deals both magic and physical damage', 'dam_type' : 'split', 'hitpoints' : 50, 'atk' : -2, 'dfc' : 2, 'matk' : 2, 'mdfc' : 5}
         }
         
         class_select = 1
@@ -269,6 +336,7 @@ class Player_Character:
                    if confirm.lower() == 'y':
                        ### if yes, set the players class and add the class stats to the base stats
                        self.type = player_class.lower()
+                       self.dam_type = char_types[player_class.lower()]['dam_type']
                        self.atk += char_types[player_class.lower()]['atk']
                        self.dfc += char_types[player_class.lower()]['dfc']
                        self.matk += char_types[player_class.lower()]['matk']
@@ -326,9 +394,10 @@ class Player_Character:
                 
 class Enemy:
     ###enemy class defines an enemy with a name, statistics, and hitpoints and a score value which will contribute to the players score for the game
-    def __init__(self, title, atk, dfc, matk, mdfc, hitpoints):
+    def __init__(self, title, dam_type, atk, dfc, matk, mdfc, hitpoints):
         
         self.title = title
+        self.dam_type = dam_type
         self.atk = atk
         self.dfc = dfc
         self.matk = matk
@@ -355,3 +424,94 @@ class Room:
     def __str__(self):
         
         print('the room has an enemy, a chest and a door')
+        
+#%%
+tier1_enemy = {        
+'weak1' : {'title' : 'phys1', 'dam_type' : 'physical', 'atk' : 2, 'dfc' : 1, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 50},
+'weak2' : {'title' : 'mag1', 'dam_type' : 'magic', 'atk' : 6, 'dfc' : 5, 'matk' : 2, 'mdfc' : 1, 'hitpoints' : 60},
+'weak3' : {'title' : 'spl1', 'dam_type' : 'split', 'atk' : 3, 'dfc' : 4, 'matk' : 2, 'mdfc' : 2, 'hitpoints' : 30},
+}
+
+tier2_enemy = {
+'mid1' : {'title' : 'phys2', 'dam_type' : 'physical', 'atk' : 10, 'dfc' : 12, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 100},
+'mid2' : {'title' : 'mag2', 'dam_type' : 'magic', 'atk' : 5, 'dfc' : 5, 'matk' : 15, 'mdfc' : 12, 'hitpoints' : 90},
+'mid3' : {'title' : 'spl2', 'dam_type' : 'split', 'atk' : 10, 'dfc' : 10, 'matk' : 10, 'mdfc' : 10, 'hitpoints' : 100},
+}
+
+tier3_enemy = {
+'hi1' : {'title' : 'phys3', 'dam_type' : 'physical', 'atk' : 20, 'dfc' : 25, 'matk' : 10, 'mdfc' : 10, 'hitpoints' : 140},
+'hi2' : {'title' : 'mag3', 'dam_type' : 'magic', 'atk' : 10, 'dfc' : 10, 'matk' : 25, 'mdfc' : 18, 'hitpoints' : 160},
+'hi3' : {'title' : 'spl3', 'dam_type' : 'split', 'atk' : 20, 'dfc' : 20, 'matk' : 20, 'mdfc' : 20, 'hitpoints' : 150},
+}
+
+tier1_enemy_list = ['weak1', 'weak2', 'weak3']
+tier2_enemy_list = ['mid1', 'mid2', 'mid3']
+tier3_enemy_list = ['hi1', 'hi2', 'hi3']
+#%%
+
+def enemy_generator(level):
+    
+    global tier1_enemy
+    global tier2_enemy
+    global tier3_enemy
+    global tier1_enemy_list
+    global tier2_enemy_list
+    global tier3_enemy_list
+    
+    if 0 < level < 20:
+        select = random.choice(tier1_enemy_list)
+        enemy = Enemy(tier1_enemy[select]['title'], tier1_enemy[select]['dam_type'], tier1_enemy[select]['atk'], tier1_enemy[select]['dfc'], tier1_enemy[select]['matk'], tier1_enemy[select]['mdfc'], tier1_enemy[select]['hitpoints'])
+        
+    elif 20 <= level < 40:
+        select = random.choice(tier2_enemy_list)
+        enemy = Enemy(tier2_enemy[select]['title'], tier2_enemy[select]['dam_type'], tier2_enemy[select]['atk'], tier2_enemy[select]['dfc'], tier2_enemy[select]['matk'], tier2_enemy[select]['mdfc'], tier2_enemy[select]['hitpoints'])
+    
+    elif 40 <= level < 60:
+        select = random.choice(tier3_enemy_list)
+        enemy = Enemy(tier3_enemy[select]['title'], tier3_enemy[select]['dam_type'], tier3_enemy[select]['atk'], tier3_enemy[select]['dfc'], tier3_enemy[select]['matk'], tier3_enemy[select]['mdfc'], tier3_enemy[select]['hitpoints'])
+   
+    else:
+         print('level out of range')
+         enemy = 'ah shit'
+    
+    return enemy
+   
+#%%
+    
+def attack(attacker, defender):
+    
+    if attacker.dam_type == 'physical':
+        dam = int(random.randint(10, 20)*(attacker.atk/defender.dfc))
+            
+    elif attacker.dam_type == 'magic':
+        dam = int(random.randint(10, 20)*(attacker.matk/defender.mdfc))
+    
+    elif attacker.dam_type == 'split':
+        dam = int(random.randint(10, 20)*((attacker.atk+attacker.matk)/(defender.dfc+defender.mdfc)))
+    
+    if defender.hitpoints > dam:
+        defender.hitpoints -= dam
+        print(f'{attacker.title} did {dam} points of damage to {defender.title}') 
+        print(f'{defender.title} has {defender.hitpoints} hitpoints remaining')
+    elif defender.hitpoints <= dam:
+        print(f'{attacker.title} did {dam} points of damage to {defender.title}')
+        defender.hitpoints = 0
+        print(f'{defender.title} was killed')
+        
+#%%
+        
+hero = Player_Character()
+hero.char_name()
+hero.class_select()
+hero.__str__()
+level = 1
+
+#%%
+
+room = Room(enemy_generator(level), Chest(item_generator(level, random.randint(0, 8000))), Door())
+room.enemy.__str__()
+while hero.hitpoints > 0 and room.enemy.hitpoints > 0:
+    attack(hero, room.enemy)
+    if room.enemy.hitpoints == 0:
+        break
+    attack(room.enemy, hero)
