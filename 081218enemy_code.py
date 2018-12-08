@@ -28,37 +28,53 @@ class Enemy:
             print(f'you are faced with a {self.title} which has {self.hitpoints} hitpoints')
             
             
-weak1 = Enemy('weak1', 'physical', 2, 1, 6, 5, 50)
-weak2 = Enemy('weak2', 'magic', 6, 5, 2, 1, 60)
-weak3 = Enemy('weak3', 'split', 3, 4, 2, 2, 30)
 
-mid1 = Enemy('mid1', 'physical', 10, 12, 6, 5, 100)
-mid2 = Enemy('mid2', 'magic', 5, 5, 15, 12, 90)
-mid3 = Enemy('mid3', 'split', 10, 10, 10, 10, 100)
+tier1_enemy = {        
+'weak1' : {'title' : 'phys1', 'dam_type' : 'physical', 'atk' : 2, 'dfc' : 1, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 50},
+'weak2' : {'title' : 'mag1', 'dam_type' : 'magic', 'atk' : 6, 'dfc' : 5, 'matk' : 2, 'mdfc' : 1, 'hitpoints' : 60},
+'weak3' : {'title' : 'spl1', 'dam_type' : 'split', 'atk' : 3, 'dfc' : 4, 'matk' : 2, 'mdfc' : 2, 'hitpoints' : 30},
+}
 
-hi1 = Enemy('hi1', 'physical', 20, 25, 10, 10, 140)
-hi2 = Enemy('hi2', 'magic', 10, 10, 25, 18, 160)
-hi3 = Enemy('hi3', 'split', 20, 20, 20, 20, 150)
+tier2_enemy = {
+'mid1' : {'title' : 'phys2', 'dam_type' : 'physical', 'atk' : 10, 'dfc' : 12, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 100},
+'mid2' : {'title' : 'mag2', 'dam_type' : 'magic', 'atk' : 5, 'dfc' : 5, 'matk' : 15, 'mdfc' : 12, 'hitpoints' : 90},
+'mid3' : {'title' : 'spl2', 'dam_type' : 'split', 'atk' : 10, 'dfc' : 10, 'matk' : 10, 'mdfc' : 10, 'hitpoints' : 100},
+}
 
-tier1_enemy = [weak1, weak2, weak3]
-tier2_enemy = [mid1, mid2, mid3]
-tier3_enemy = [hi1, hi2, hi3]
+tier3_enemy = {
+'hi1' : {'title' : 'phys3', 'dam_type' : 'physical', 'atk' : 20, 'dfc' : 25, 'matk' : 10, 'mdfc' : 10, 'hitpoints' : 140},
+'hi2' : {'title' : 'mag3', 'dam_type' : 'magic', 'atk' : 10, 'dfc' : 10, 'matk' : 25, 'mdfc' : 18, 'hitpoints' : 160},
+'hi3' : {'title' : 'spl3', 'dam_type' : 'split', 'atk' : 20, 'dfc' : 20, 'matk' : 20, 'mdfc' : 20, 'hitpoints' : 150},
+}
+
+tier1_enemy_list = ['weak1', 'weak2', 'weak3']
+tier2_enemy_list = ['mid1', 'mid2', 'mid3']
+tier3_enemy_list = ['hi1', 'hi2', 'hi3']
 
 def enemy_generator(level):
     
     global tier1_enemy
     global tier2_enemy
     global tier3_enemy
+    global tier1_enemy_list
+    global tier2_enemy_list
+    global tier3_enemy_list
     
     if 0 < level < 20:
-        enemy = random.choice(tier1_enemy)
+        select = random.choice(tier1_enemy_list)
+        enemy = Enemy(tier1_enemy[select]['title'], tier1_enemy[select]['dam_type'], tier1_enemy[select]['atk'], tier1_enemy[select]['dfc'], tier1_enemy[select]['matk'], tier1_enemy[select]['mdfc'], tier1_enemy[select]['hitpoints'])
+        
     elif 20 <= level < 40:
-        enemy = random.choice(tier2_enemy)
+        select = random.choice(tier2_enemy_list)
+        enemy = Enemy(tier2_enemy[select]['title'], tier2_enemy[select]['dam_type'], tier2_enemy[select]['atk'], tier2_enemy[select]['dfc'], tier2_enemy[select]['matk'], tier2_enemy[select]['mdfc'], tier2_enemy[select]['hitpoints'])
+    
     elif 40 <= level < 60:
-        enemy = random.choice(tier3_enemy)
+        select = random.choice(tier3_enemy_list)
+        enemy = Enemy(tier3_enemy[select]['title'], tier3_enemy[select]['dam_type'], tier3_enemy[select]['atk'], tier3_enemy[select]['dfc'], tier3_enemy[select]['matk'], tier3_enemy[select]['mdfc'], tier3_enemy[select]['hitpoints'])
+   
     else:
          print('level out of range')
-         enemy = tier1_enemy[0]
+         enemy = 'ah shit'
     
     return enemy
      
@@ -82,15 +98,3 @@ def attack(attacker, defender):
         defender.hitpoints = 0
         print(f'{defender.title} was killed')
         
-a = enemy_generator(50)
-a.__str__()
-print(a.dam_type)
-b = enemy_generator(50)
-b.__str__()
-print(b.dam_type)
-
-while a.hitpoints > 0 and b.hitpoints > 0:
-    attack(a,b)
-    if b.hitpoints == 0:
-        break
-    attack(b,a)
