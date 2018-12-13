@@ -80,7 +80,7 @@ class Chest:
     def __init__(self, item):
         
        self.item = item
-       self.open = True
+       self.open = False
        
     def __str__(self):
         
@@ -102,7 +102,7 @@ class Chest:
 loweq1 = Equipment('loweq1', 'helm', 'helmet', 0, 2, 0, 0)       
 loweq2 = Equipment('loweq2', 'armour', 'light armour', 0, 4, 0, 0)
 loweq3 = Equipment('loweq3', 'shield', 'round shield', 0, 2, 0, 0)
-loweq4 = Equipment('loweq4', 'weapon', 'axe', 5, 0, 0, 0)
+loweq4 = Equipment('loweq4', 'weapon', 'axe', 1, 0, 0, 0)
 
 mideq1 = Equipment('mideq1', 'shield', 'magic orb', 0, 1, 0, 5)
 mideq2 = Equipment('mideq2', 'weapon', 'magic staff', 0, 0, 5, 0)
@@ -112,9 +112,11 @@ mideq4 = Equipment('mideq4', 'armour', 'robe', 0, 1, 0, 4)
 hieq1 = Equipment('hieq1', 'helm', 'helmet', 0, 3, 0, 1)
 hieq2 = Equipment('hieq2', 'armour', 'heavy armour', 0, 5, 0, 2)
 hieq3 = Equipment('hieq3', 'shield', 'kite shield', 0, 3, 0, 0)
-hieq4 = Equipment('hieq4', 'weapon', 'sword', 3, 0, 0, 0)
+hieq4 = Equipment('hieq4', 'weapon', 'sword', 20, 0, 0, 0)
 
 #%%
+
+no_item = Potion('no item', 'na', 0)
 
 lowpot1 = Potion('lowpot1', 'attack', 2)
 lowpot2 = Potion('lowpot2', 'attack', 2)
@@ -127,6 +129,12 @@ midpot3 = Potion('midpot3', 'defence', 1)
 hipot1 = Potion('hipot1', 'magic attack', 3)
 hipot2 = Potion('hipot2', 'magic attack', 3)
 hipot3 = Potion('hipot3', 'magic attack', 3)
+
+testpot1 = Potion('healthpot', 'health', 20)
+testpot2 = Potion('unhealthpot', 'health', -20)
+testpot3 = Potion('vitpot', 'vitality', 20)
+testpot4 = Potion('unvitpot', 'vitality', -20)
+testpot5 = Potion('bigstrong', 'attack', -50)
 
 #%%
 
@@ -186,6 +194,7 @@ class Player_Character:
         self.type = ''
         self.dam_type = ''
         self.hitpoints = 100
+        self.total_hitpoints = 100
         self.helm = empty_slot
         self.armour = empty_slot
         self.shield = empty_slot
@@ -203,7 +212,7 @@ class Player_Character:
         print(f'defense: {self.dfc}')
         print(f'magic attack: {self.matk}')
         print(f'magic defense: {self.mdfc}')
-        print(f'total hitpoints: {self.hitpoints}\n')
+        print(f'hitpoints: {self.hitpoints}/{self.total_hitpoints}\n')
         print(f'{self.title} is wearing the following equipment:')
         print(f'helm: {self.helm.title}')
         print(f'attack - {self.helm.atk} defence - {self.helm.dfc} magic attack - {self.helm.matk} magic defence - {self.helm.mdfc}\n')
@@ -248,20 +257,20 @@ class Player_Character:
             self.matk -= item.matk
             self.mdfc -= item.mdfc
             if item.slot == 'helm':
-                self.helm == empty_slot
+                self.helm = empty_slot
                 print('you unequipped your helm')
             if item.slot == 'armour':
-                self.armour == empty_slot
+                self.armour = empty_slot
                 print('you unequipped your armour')
             if item.slot == 'shield':
-                self.shield == empty_slot
+                self.shield = empty_slot
                 print('you unequipped your shield')
             if item.slot == 'weapon':
-                self.weapon == empty_slot
+                self.weapon = empty_slot
                 print('you unequipped your weapon')
         else:
             ### if the item is not equipped, tells the player so
-            print('you so not have that item equipped')
+            print('you do not have that item equipped')
             
     def equip(self, item):
         ### allows the player to equip a new item
@@ -342,6 +351,7 @@ class Player_Character:
                        self.matk += char_types[player_class.lower()]['matk']
                        self.mdfc += char_types[player_class.lower()]['mdfc']
                        self.hitpoints += char_types[player_class.lower()]['hitpoints']
+                       self.total_hitpoints += char_types[player_class.lower()]['hitpoints']
                        ### break from both loops
                        class_select = 0
                        query = 0
@@ -390,6 +400,55 @@ class Player_Character:
                 self.equip(pal_arm)
                 self.equip(pal_shld)
                 self.equip(ench_mace)
+                
+    def drink(self, potion):
+        
+        if isinstance(potion, Potion):
+            drink_check = 0
+            if potion.stat == 'attack':
+                if self.atk + potion.effect <= 0:
+                    print('you may not want to drink this')
+                else:
+                    self.atk += potion.effect
+                    drink_check = 1
+            elif potion.stat == 'defence':
+                if self.dfc + potion.effect <= 0:
+                    print('you may not want to drink this')
+                else:
+                    self.dfc += potion.effect
+                    drink_check = 1
+            elif potion.stat == 'magic attack':
+                if self.matk + potion.effect <= 0:
+                    print('you may not want to drink this')
+                else:
+                    self.matk += potion.effect
+                    drink_check = 1
+            elif potion.stat == 'magic defence':
+                if self.mdfc + potion.effect <= 0:
+                    print('you may not want to drink this')
+                else:
+                    self.mdfc += potion.effect
+                    drink_check = 1
+            elif potion.stat == 'health':
+                if self.total_hitpoints - self.hitpoints <= potion.effect:
+                    self.hitpoints = self.total_hitpoints
+                    drink_check = 1
+                else:
+                    self.hitpoints += potion.effect
+                    drink_check = 1
+            elif potion.stat == 'vitality':
+                self.total_hitpoints += potion.effect
+                self.hitpoints += potion.effect
+                drink_check = 1
+            
+            if drink_check == 1:
+                print(f'the potion changed your {potion.stat} by {potion.effect} points')
+                self.backpack.remove(potion)
+            
+        else:
+            print('i dont think you can drink that')
+    
+    
 #%%
                 
 class Enemy:
@@ -427,8 +486,8 @@ class Room:
         
 #%%
 tier1_enemy = {        
-'weak1' : {'title' : 'phys1', 'dam_type' : 'physical', 'atk' : 2, 'dfc' : 1, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 50},
-'weak2' : {'title' : 'mag1', 'dam_type' : 'magic', 'atk' : 6, 'dfc' : 5, 'matk' : 2, 'mdfc' : 1, 'hitpoints' : 60},
+'weak1' : {'title' : 'phys1', 'dam_type' : 'physical', 'atk' : 6, 'dfc' : 5, 'matk' : 2, 'mdfc' : 1, 'hitpoints' : 50},
+'weak2' : {'title' : 'mag1', 'dam_type' : 'magic', 'atk' : 2, 'dfc' : 1, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 60},
 'weak3' : {'title' : 'spl1', 'dam_type' : 'split', 'atk' : 3, 'dfc' : 4, 'matk' : 2, 'mdfc' : 2, 'hitpoints' : 30},
 }
 
@@ -481,22 +540,196 @@ def enemy_generator(level):
 def attack(attacker, defender):
     
     if attacker.dam_type == 'physical':
-        dam = int(random.randint(10, 20)*(attacker.atk/defender.dfc))
+        dam = int(random.randint(8, 12)*(attacker.atk/defender.dfc))
             
     elif attacker.dam_type == 'magic':
-        dam = int(random.randint(10, 20)*(attacker.matk/defender.mdfc))
+        dam = int(random.randint(8, 12)*(attacker.matk/defender.mdfc))
     
     elif attacker.dam_type == 'split':
-        dam = int(random.randint(10, 20)*((attacker.atk+attacker.matk)/(defender.dfc+defender.mdfc)))
+        dam = int(random.randint(8, 12)*((attacker.atk+attacker.matk)/(defender.dfc+defender.mdfc)))
     
     if defender.hitpoints > dam:
         defender.hitpoints -= dam
         print(f'{attacker.title} did {dam} points of damage to {defender.title}') 
-        print(f'{defender.title} has {defender.hitpoints} hitpoints remaining')
+        print(f'{defender.title} has {defender.hitpoints} hitpoints remaining\n')
     elif defender.hitpoints <= dam:
         print(f'{attacker.title} did {dam} points of damage to {defender.title}')
         defender.hitpoints = 0
         print(f'{defender.title} was killed')
+        
+#%%
+    
+def player_turn(player, room):
+    
+    action_query = True
+    while action_query == True:
+        
+        action = input('what would you like to do? ')
+        
+        if action[0:5].lower() == 'equip':
+            check = 0
+            for i in player.backpack:
+                if action[6::].lower() == i.title:
+                    player.equip(i)
+                    check = 1
+                    action_query = False
+                    break
+            if check == 0:
+                print('that item is unavailable to equip')
+        
+        elif action[0:7].lower() == 'unequip':
+            
+            check = 0
+            for i in player.backpack:
+                if action[8::].lower() == i.title:
+                    player.unequip(i)
+                    check = 1
+                    action_query = False
+                    break
+            if check == 0:
+                print('that item is unavailable to equip')
+        
+        elif action[0:6].lower() == 'attack':
+            
+            if action[7::].lower() == 'door':
+                print('i dont think force will work, maybe try the handle')
+                
+            elif action[7::].lower() == 'chest':
+                print('i really dont think that level of force is necessary')
+                
+            elif action[7::].lower() == 'self' or action[7::].lower() == 'myself':
+                print('theres enough already trying to kill you in this dungeon without you trying to do yourself in')
+                
+            elif action[7::].lower() == 'enemy' or action[7::].lower() == room.enemy.title.lower():
+                if room.enemy.hitpoints > 0:
+                    attack(player, room.enemy)
+                    action_query = False
+                    break
+                
+                elif room.enemy.hitpoints == 0:
+                    print('stop it, its already dead')
+                    
+            else:
+                print('please input a valid target to attack')                    
+        
+        elif action[0:7].lower() in ['examine', 'look at']:
+            
+            for i in player.backpack:
+                if action[8::].lower() == i.title:
+                    i.__str__()
+            
+            if action[8::].lower() in ['self', 'myself', 'player', player.title.lower()]:
+                player.__str__()
+            
+            elif action[8::].lower() in ['pack', 'backpack', 'bag', 'inventory']:
+                print('your backpack contains:')
+                for i in player.backpack:
+                    print(i.title)
+            
+            elif action[8::].lower() == 'enemy' or action[8::].lower() == room.enemy.title.lower():
+                room.enemy.__str__()
+                    
+            
+            elif action[8::].lower() == 'chest':
+                room.chest.__str__()
+                
+            elif action[8::].lower() == 'door':
+                room.door.__str__()
+            
+            elif action[8::].lower() in ['helm', 'helmet', 'hat']:
+                player.helm.__str__()
+                
+            elif action[8::].lower() in ['armour', 'armor', 'robe', 'chest']:
+                player.armour.__str__()
+            
+            elif action[8::].lower() in ['shield']:
+                player.shield.__str()
+            
+            elif action[8::].lower() in ['weapon', 'sword', 'axe', 'staff']:
+                player.weapon.__str__()
+            
+            else:
+                print('you should be more clear about what you want to examine')
+                
+        elif action[0:5].lower() == 'info':
+            print('available commands include: \n')
+            print('equip\nunequip\nexamine\nuse\nattack\nopen\ntake item')
+            
+        elif action[0:4].lower() == 'open':
+            if action[5::] == 'chest':
+                if room.chest.open == False:
+                    print('you opened the chest')
+                    room.chest.open = True
+                    room.chest.__str__()
+                    action_query = False
+                    break
+                elif room.chest.open == True:
+                    print('the chest is already open')
+            if action[5::] == 'door':
+                if room.enemy.hitpoints > 0:
+                    print(f'you look towards the door, but the {room.enemy.title} blocks your path')
+                elif room.enemy.hitpoints == 0:
+                    print('you walk across the room, open the door and proceed down the stairs to the next level of the dungeon')
+                    room.door.open = True
+                    action_query = False
+                    break
+        
+        elif action[0:4].lower() == 'take':
+            if action[5::] in ['item', room.chest.item.title]:
+                if room.chest.item.title == 'no item':
+                    print('you have already taken the item from this room')
+                else:
+                    print(f'you pick up the {room.chest.item.title} and place it in your backpack, ready for later use')
+                    player.backpack.append(room.chest.item)
+                    room.chest.item = no_item
+                    action_query = False
+                    break
+        
+        elif action[0:5].lower() == 'drink':
+            check = 0
+            for i in player.backpack:
+                if action[6::].lower() == i.title:
+                    check += 1
+                    player.drink(i)
+                    action_query = False
+                    break
+            if check == 0:
+                print('that is not available to drink')
+        
+        elif action[0:7].lower() == 'discard':
+            bagcheck = 0
+            for item in player.backpack:
+                if action[8::].lower() == i.title:
+                    discard_item = i
+                    bagcheck = 1
+                    break
+            if bagcheck == 1:
+                dconfirm = 0
+                while dconfirm == 0:
+                    dcheck = input(f'would you like to throw away {discard_item.title}? y/n')
+                    if dcheck.lower() == 'y':
+                        player.backpack.remove(discard_item)
+                        print(f'you throw away {discard_item.title}')
+                        action_query = False
+                        dconfirm = 1
+                        break
+                    elif dcheck.lower() == 'n':
+                        print('you decided not to throw it away')
+                        dconfirm = 1
+                        break
+                    else:
+                        print('please input y or n')
+            elif bagcheck == 0:
+                print('that does not seem to be an item which can be discarded')
+                        
+        elif action.lower() == 'end':
+            player.hitpoints = 0
+            room.door.open = True
+            action_query = False
+            break
+        
+        else:
+            print('please input a valid action')
         
 #%%
         
@@ -504,14 +737,30 @@ hero = Player_Character()
 hero.char_name()
 hero.class_select()
 hero.__str__()
-level = 1
+level = 0
 
 #%%
 
-room = Room(enemy_generator(level), Chest(item_generator(level, random.randint(0, 8000))), Door())
-room.enemy.__str__()
-while hero.hitpoints > 0 and room.enemy.hitpoints > 0:
-    attack(hero, room.enemy)
-    if room.enemy.hitpoints == 0:
-        break
-    attack(room.enemy, hero)
+    
+#%%
+           
+while level <= 60 and hero.hitpoints > 0:
+    level += 1
+    print(f'you enter floor number {level} of the dungeon')
+    room = Room(enemy_generator(level), Chest(item_generator(level, random.randint(0, 8000))), Door())
+    room.__str__()
+    room.enemy.__str__()
+    while room.door.open == False:
+        player_turn(hero, room)
+        if hero.hitpoints <= 0:
+            print('you died')
+            break
+        if room.enemy.hitpoints > 0:
+            attack(room.enemy, hero)
+        if hero.hitpoints <= 0:
+            print('you died')
+            break
+        
+    
+    
+
