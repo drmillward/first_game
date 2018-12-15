@@ -99,10 +99,21 @@ class Chest:
         
 #%%
         
-loweq1 = Equipment('loweq1', 'helm', 'helmet', 0, 2, 0, 0)       
-loweq2 = Equipment('loweq2', 'armour', 'light armour', 0, 4, 0, 0)
-loweq3 = Equipment('loweq3', 'shield', 'round shield', 0, 2, 0, 0)
-loweq4 = Equipment('loweq4', 'weapon', 'axe', 1, 0, 0, 0)
+sthelm = Equipment('steel helm', 'helm', 'helmet', 0, 5, 0, 0)       
+stplate = Equipment('steel platemail', 'armour', 'heavy armour', 0, 10, 0, 0)
+stkite = Equipment('steel kite shield', 'shield', 'kite shield', 0, 10, 0, 0)
+enhood = Equipment('enchanted hood', 'helm', 'hood', 0, 1, 1, 4)
+enrobe = Equipment('enchanted robe', 'armour', 'robe', 0, 2, 1, 12)
+enshield = Equipment('enchanted shield', 'shield', 'small shield', 0, 2, 0, 8)
+wanhelm = Equipment('wanderers helm', 'helm', 'helmet', 0, 4, 0, 4)
+wanmail = Equipment('wanderers chainmail', 'armour', 'chainmail', 0, 8, 0, 8) 
+wanshield = Equipment('wanderers shield', 'shield', 'small shield', 0, 5, 0, 5)
+herosw = Equipment('hero sword', 'weapon', 'sword', 100, 0, 0, 0)
+herosh = Equipment('heroshield', 'shield', 'kite shield', 0, 100, 0, 0)
+stsword = Equipment('steel sword', 'weapon', 'sword', 10, 0, 0, 0)
+faxe = Equipment('fire axe', 'weapon', 'axe', 6, 0, 6, 0)
+oakwand = Equipment('oak wand', 'weapon', 'wand', 0, 12, 0, 0)
+mauclub = Equipment('maurauders club', 'weapon', 'club', 15, 0, 0, 0) 
 
 mideq1 = Equipment('mideq1', 'shield', 'magic orb', 0, 1, 0, 5)
 mideq2 = Equipment('mideq2', 'weapon', 'magic staff', 0, 0, 5, 0)
@@ -118,9 +129,13 @@ hieq4 = Equipment('hieq4', 'weapon', 'sword', 20, 0, 0, 0)
 
 no_item = Potion('no item', 'na', 0)
 
-lowpot1 = Potion('lowpot1', 'attack', 2)
-lowpot2 = Potion('lowpot2', 'attack', 2)
-lowpot3 = Potion('lowpot3', 'attack', 2)
+lowstr = Potion('weak strength potion', 'attack', 2)
+lowdef = Potion('weak defence potion', 'defence', 2)
+lowmag = Potion('weak magic potion', 'magic attack', 2)
+lowmd = Potion('weak magic defence potion', 'magic defence', 2)
+lowhlt = Potion('weak health potion', 'health', 25)
+lowvit = Potion('weak vitality potion', 'vitality', 25)
+#badstr1 = Potion('weak magic potion', 'magic attack', 2)
 
 midpot1 = Potion('midpot1', 'defence', 1)
 midpot2 = Potion('midpot2', 'defence', 1)
@@ -204,6 +219,7 @@ class Player_Character:
         self.matk = 5
         self.mdfc = 5
         self.backpack = []
+        self.defend = False
     
     ### describe the player characters stats and equipment
     def __str__(self):
@@ -268,6 +284,7 @@ class Player_Character:
             if item.slot == 'weapon':
                 self.weapon = empty_slot
                 print('you unequipped your weapon')
+            self.backpack.append(item)
         else:
             ### if the item is not equipped, tells the player so
             print('you do not have that item equipped')
@@ -285,6 +302,7 @@ class Player_Character:
                 self.dfc -= self.helm.dfc
                 self.matk -= self.helm.matk
                 self.mdfc -= self.helm.mdfc
+                self.backpack.append(self.helm)
                 ### changes the slot to the new item
                 self.helm = item
             elif item.slot == 'armour':
@@ -292,18 +310,21 @@ class Player_Character:
                 self.dfc -= self.armour.dfc
                 self.matk -= self.armour.matk
                 self.mdfc -= self.armour.mdfc
+                self.backpack.append(self.armour)
                 self.armour = item
             elif item.slot == 'shield':
                 self.atk -= self.shield.atk
                 self.dfc -= self.shield.dfc
                 self.matk -= self.shield.matk
                 self.mdfc -= self.shield.mdfc
+                self.backpack.append(self.shield)
                 self.shield = item
             elif item.slot == 'weapon':
                 self.atk -= self.weapon.atk
                 self.dfc -= self.weapon.dfc
                 self.matk -= self.weapon.matk
                 self.mdfc -= self.weapon.mdfc
+                self.backpack.append(self.weapon)
                 self.weapon = item
             ### adds the newly equipped items stats to the players stats
             self.atk += item.atk
@@ -312,7 +333,7 @@ class Player_Character:
             self.mdfc += item.mdfc
             ### tells the player that the item has been equipped
             print(f'you equipped the {item.title}')
-        
+            self.backpack.remove(item)
         else:
             ### if the item is not in the inventory, tell the player so
             print('this piece of eqiupment is not in your inventory')
@@ -462,6 +483,7 @@ class Enemy:
         self.matk = matk
         self.mdfc = mdfc
         self.hitpoints = hitpoints
+        self.defend = False
         
     def __str__(self):
         
@@ -486,9 +508,16 @@ class Room:
         
 #%%
 tier1_enemy = {        
-'weak1' : {'title' : 'phys1', 'dam_type' : 'physical', 'atk' : 6, 'dfc' : 5, 'matk' : 2, 'mdfc' : 1, 'hitpoints' : 50},
-'weak2' : {'title' : 'mag1', 'dam_type' : 'magic', 'atk' : 2, 'dfc' : 1, 'matk' : 6, 'mdfc' : 5, 'hitpoints' : 60},
-'weak3' : {'title' : 'spl1', 'dam_type' : 'split', 'atk' : 3, 'dfc' : 4, 'matk' : 2, 'mdfc' : 2, 'hitpoints' : 30},
+'imp' : {'title' : 'imp', 'dam_type' : 'split', 'atk' : 10, 'dfc' : 7, 'matk' : 3, 'mdfc' : 7, 'hitpoints' : 50},
+'pixie' : {'title' : 'pixie', 'dam_type' : 'magic', 'atk' : 2, 'dfc' : 5, 'matk' : 12, 'mdfc' : 10, 'hitpoints' : 45},
+'gobscout' : {'title' : 'goblin scout', 'dam_type' : 'physical', 'atk' : 10, 'dfc' : 10, 'matk' : 0, 'mdfc' : 6, 'hitpoints' : 60},
+'zambo' : {'title' : 'decomposed zombie', 'dam_type' : 'physical', 'atk' : 8, 'dfc' : 8, 'matk' : 0, 'mdfc' : 5, 'hitpoints' : 25},
+'skeleton' : {'title' : 'skeleton', 'dam_type' : 'split', 'atk' : 10, 'dfc' : 12, 'matk' : 8, 'mdfc' : 8, 'hitpoints' : 50},
+'necro' : {'title' : 'necromancer', 'dam_type' : 'magic', 'atk' : 0, 'dfc' : 7, 'matk' : 15, 'mdfc' : 12, 'hitpoints' : 40},
+'ferdog' : {'title' : 'feral dog', 'dam_type' : 'physical', 'atk' : 10, 'dfc' : 6, 'matk' : 0, 'mdfc' : 4, 'hitpoints' : 30},
+'smuggler' : {'title' : 'smuggler', 'dam_type' : 'split', 'atk' : 7, 'dfc' : 8, 'matk' : 8, 'mdfc' : 7, 'hitpoints' : 55},
+'lrgrat' : {'title' : 'large rat', 'dam_type' : 'physical', 'atk' : 6, 'dfc' : 5, 'matk' : 0, 'mdfc' : 4, 'hitpoints' : 35},
+'evslime' : {'title' : 'evil slime', 'dam_type' : 'magic', 'atk' : 0, 'dfc' : 10, 'matk': 13, 'mdfc' : 12, 'hitpoints' : 50}
 }
 
 tier2_enemy = {
@@ -503,7 +532,7 @@ tier3_enemy = {
 'hi3' : {'title' : 'spl3', 'dam_type' : 'split', 'atk' : 20, 'dfc' : 20, 'matk' : 20, 'mdfc' : 20, 'hitpoints' : 150},
 }
 
-tier1_enemy_list = ['weak1', 'weak2', 'weak3']
+tier1_enemy_list = ['imp', 'pixie', 'gobscout', 'zambo', 'skeleton', 'necro', 'ferdog', 'smuggler', 'lrgrat', 'evslime']
 tier2_enemy_list = ['mid1', 'mid2', 'mid3']
 tier3_enemy_list = ['hi1', 'hi2', 'hi3']
 #%%
@@ -548,6 +577,9 @@ def attack(attacker, defender):
     elif attacker.dam_type == 'split':
         dam = int(random.randint(8, 12)*((attacker.atk+attacker.matk)/(defender.dfc+defender.mdfc)))
     
+    if defender.defend == True:
+        dam = int(dam*random.uniform(0.25, 0.75))
+    
     if defender.hitpoints > dam:
         defender.hitpoints -= dam
         print(f'{attacker.title} did {dam} points of damage to {defender.title}') 
@@ -580,12 +612,26 @@ def player_turn(player, room):
         elif action[0:7].lower() == 'unequip':
             
             check = 0
-            for i in player.backpack:
-                if action[8::].lower() == i.title:
-                    player.unequip(i)
-                    check = 1
-                    action_query = False
-                    break
+            if action[8::].lower() == player.helm.title:
+                player.unequip(player.helm)
+                check = 1
+                action_query = False
+                break
+            elif action[8::].lower() == player.armour.title:
+                player.unequip(player.armour)
+                check = 1
+                action_query = False
+                break
+            elif action[8::].lower() == player.shield.title:
+                player.unequip(player.shield)
+                check = 1
+                action_query = False
+                break
+            elif action[8::].lower() == player.weapon.title:
+                player.unequip(player.weapon)
+                check = 1
+                action_query = False
+                break
             if check == 0:
                 print('that item is unavailable to equip')
         
@@ -698,7 +744,7 @@ def player_turn(player, room):
         
         elif action[0:7].lower() == 'discard':
             bagcheck = 0
-            for item in player.backpack:
+            for i in player.backpack:
                 if action[8::].lower() == i.title:
                     discard_item = i
                     bagcheck = 1
@@ -722,6 +768,17 @@ def player_turn(player, room):
             elif bagcheck == 0:
                 print('that does not seem to be an item which can be discarded')
                         
+        elif action.lower() == 'defend':
+            player.defend = True
+            if room.enemy.hitpoints == 0:
+                print('you raise your shield, but given that the enemy is aleady dead, you just look silly')
+                action_query = False
+                break
+            elif room.enemy.hitpoints > 0:
+                print(f'you raise your shield, desperatley trying to ward of the {room.enemy.title}s incoming blow')
+                action_query = False
+                break
+        
         elif action.lower() == 'end':
             player.hitpoints = 0
             room.door.open = True
@@ -760,7 +817,8 @@ while level <= 60 and hero.hitpoints > 0:
         if hero.hitpoints <= 0:
             print('you died')
             break
-        
+        if hero.defend == True:
+            hero.defend = False
     
     
 
