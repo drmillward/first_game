@@ -8,7 +8,6 @@ Created on Mon Dec  3 10:03:44 2018
 import random
 import csv
 import datetime
-
 #%%
 
 ### defines a new class for items which will be equipped to characters
@@ -278,8 +277,11 @@ class Player_Character:
     
     def unequip(self, item):
         
+        if item == empty_slot:
+            print('you have no item equipped in that slot')
+            pass
         ### takes a piece of equipment as an argument and unequips that item
-        if item == self.helm or item == self.armour or item == self.shield or item == self.weapon:
+        elif item == self.helm or item == self.armour or item == self.shield or item == self.weapon:
             ### if item is equipped, subtracts the items stat values from the players, then changes the slot to the empty_slot item
             self.atk -= item.atk
             self.dfc -= item.dfc
@@ -486,6 +488,17 @@ class Player_Character:
         else:
             print('i dont think you can drink that')
     
+    def defend_action(self):
+        
+        if self.defend == False:
+            if room.enemy.hitpoints == 0:
+                print('you raise your shield, but given that the enemy is aleady dead, you just look silly')
+            elif room.enemy.hitpoints > 0:
+                print(f'you raise your shield, desperatley trying to ward of the {room.enemy.title}s incoming blow')
+                self.defend = True
+        elif self.defend:
+            print('there is nothing more you can do to protect yourself')
+            
     def player_turn(self, room):
     
         action_query = True
@@ -555,8 +568,10 @@ class Player_Character:
             
             elif action[0:7].lower() in ['examine', 'look at']:
                 
+                check = 0
                 for i in self.backpack:
                     if action[8::].lower() == i.title:
+                        check = 1
                         i.__str__()
                 
                 if action[8::].lower() in ['self', 'myself', 'player', self.title.lower()]:
@@ -584,13 +599,16 @@ class Player_Character:
                     self.armour.__str__()
                 
                 elif action[8::].lower() in ['shield']:
-                    self.shield.__str()
+                    self.shield.__str__()
                 
                 elif action[8::].lower() in ['weapon', 'sword', 'axe', 'staff']:
                     self.weapon.__str__()
                 
                 else:
-                    print('you should be more clear about what you want to examine')
+                    if check == 1:
+                        pass
+                    else:
+                        print('you should be more clear about what you want to examine')
                     
             elif action[0:5].lower() == 'info':
                 print('available commands include: \n')
@@ -671,13 +689,10 @@ class Player_Character:
                     print('that does not seem to be an item which can be discarded')
                             
             elif action.lower() == 'defend':
-                self.defend = True
-                if room.enemy.hitpoints == 0:
-                    print('you raise your shield, but given that the enemy is aleady dead, you just look silly')
-                    action_query = False
-                    break
-                elif room.enemy.hitpoints > 0:
-                    print(f'you raise your shield, desperatley trying to ward of the {room.enemy.title}s incoming blow')
+                if self.shield == empty_slot:
+                    print('it crosses your mind that defending yourself in this situation would be useful, however you find yourself without any means of defence')
+                else:
+                    self.defend_action()
                     action_query = False
                     break
             
@@ -842,46 +857,46 @@ def hiscore_report():
         print('')
         print(f" the run was made on {info['date']}")
 #%%
-
-hiscore_report()  
-hero = Player_Character()
-hero.char_name()
-hero.class_select()
-hero.__str__()
-level = 0
-
-#%%
-           
-while level <= 60 and hero.hitpoints > 0:
-    level += 1
-    defend_count = 0
-    print(f'you enter floor number {level} of the dungeon')
-    seed = random.randint(0, 8000)
-    print(seed)
-    room = Room(enemy_generator(level), Chest(item_generator(level, seed)), Door())
-    room.__str__()
-    room.enemy.__str__()
-    while room.door.open == False:
-        hero.player_turn(room)
-        if hero.hitpoints <= 0:
-            print('you died')
-            break
-        if room.enemy.hitpoints > 0:
-            attack(room.enemy, hero)
-        if hero.hitpoints <= 0:
-            print('you died')
-            break
-        if hero.defend == True and defend_count == 0:
-            defend_count = 1
-            print('you continue to ward off the enemy with your shield')
-        elif hero.defend == True and defend_count == 1:
-            hero.defend = False
-            defend_count = 0
-            print('you lower your shield')
+        
+if __name__ == '__main__':
     
-    
-with open('score_record.csv', 'a', newline = '') as scorelog:
-    now = datetime.datetime.now()
-    fieldnames = ['character name', 'class', 'dungeon level', 'hitpoints remaining', 'attack', 'defence', 'magic attack', 'magic defence', 'date']
-    scorewriter = csv.DictWriter(scorelog, fieldnames = fieldnames)
-    scorewriter.writerow({'character name' : hero.title, 'class' : hero.type, 'dungeon level' : level, 'hitpoints remaining' : hero.hitpoints, 'attack' : hero.atk, 'defence' : hero.dfc, 'magic attack' : hero.matk, 'magic defence' : hero.mdfc, 'date' : now.strftime('%Y-%m-%d')})
+    hiscore_report()
+    hero = Player_Character()
+    hero.char_name()
+    hero.class_select()
+    hero.__str__()
+    level = 0
+               
+    while level <= 60 and hero.hitpoints > 0:
+        level += 1
+        defend_count = 0
+        print(f'you enter floor number {level} of the dungeon')
+        seed = random.randint(0, 8000)
+        print(seed)
+        room = Room(enemy_generator(level), Chest(item_generator(level, seed)), Door())
+        room.__str__()
+        room.enemy.__str__()
+        while room.door.open == False:
+            hero.player_turn(room)
+            if hero.hitpoints <= 0:
+                print('you died')
+                break
+            if room.enemy.hitpoints > 0:
+                attack(room.enemy, hero)
+            if hero.hitpoints <= 0:
+                print('you died')
+                break
+            if hero.defend == True and defend_count == 0:
+                defend_count = 1
+                print('you continue to ward off the enemy with your shield')
+            elif hero.defend == True and defend_count == 1:
+                hero.defend = False
+                defend_count = 0
+                print('you lower your shield')
+        
+        
+    with open('score_record.csv', 'a', newline = '') as scorelog:
+        now = datetime.datetime.now()
+        fieldnames = ['character name', 'class', 'dungeon level', 'hitpoints remaining', 'attack', 'defence', 'magic attack', 'magic defence', 'date']
+        scorewriter = csv.DictWriter(scorelog, fieldnames = fieldnames)
+        scorewriter.writerow({'character name' : hero.title, 'class' : hero.type, 'dungeon level' : level, 'hitpoints remaining' : hero.hitpoints, 'attack' : hero.atk, 'defence' : hero.dfc, 'magic attack' : hero.matk, 'magic defence' : hero.mdfc, 'date' : now.strftime('%Y-%m-%d')})
